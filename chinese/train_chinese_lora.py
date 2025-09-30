@@ -7,19 +7,20 @@ from peft import LoraConfig, TaskType, get_peft_model
 import os
 import swanlab
 
-os.environ["SWANLAB_PROJECT"]="qwen3-sft-medical"
+os.environ["SWANLAB_PROJECT"] = "qwen3-sft-medical"
 MAX_LENGTH = 2048
 
 swanlab.config.update({
-    "model": "Qwen/Qwen3-0.6B-chinese-mac",
+    "model": "Qwen/Qwen3-0.6B-chinese-mac-v1",
     "prompt": "",
     "data_max_length": MAX_LENGTH,
-    })
+})
+
 
 def process_func(example):
     """
     将数据集进行预处理
-    """ 
+    """
     input_ids, attention_mask, labels = [], [], []
     instruction = tokenizer(
         f"<|im_start|>system\n{example['instruction']}<|im_end|>\n<|im_start|>user\n{example['input']}<|im_end|>\n<|im_start|>assistant\n",
@@ -28,14 +29,14 @@ def process_func(example):
     response = tokenizer(f"{example['output']}", add_special_tokens=False)
     input_ids = instruction["input_ids"] + response["input_ids"] + [tokenizer.pad_token_id]
     attention_mask = (
-        instruction["attention_mask"] + response["attention_mask"] + [1]
+            instruction["attention_mask"] + response["attention_mask"] + [1]
     )
     labels = [-100] * len(instruction["input_ids"]) + response["input_ids"] + [tokenizer.pad_token_id]
     if len(input_ids) > MAX_LENGTH:  # 做一个截断
         input_ids = input_ids[:MAX_LENGTH]
         attention_mask = attention_mask[:MAX_LENGTH]
         labels = labels[:MAX_LENGTH]
-    return {"input_ids": input_ids, "attention_mask": attention_mask, "labels": labels}   
+    return {"input_ids": input_ids, "attention_mask": attention_mask, "labels": labels}
 
 
 def predict(messages, model, tokenizer):
@@ -58,6 +59,7 @@ def predict(messages, model, tokenizer):
     response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
 
     return response
+
 
 # 在modelscope上下载Qwen模型到本地目录下
 model_dir = snapshot_download("Qwen/Qwen3-0.6B", cache_dir="../models", revision="master")
@@ -100,7 +102,7 @@ eval_ds = Dataset.from_pandas(eval_df)
 eval_dataset = eval_ds.map(process_func, remove_columns=eval_ds.column_names)
 
 args = TrainingArguments(
-    output_dir="../output/Qwen3-0.6B-chinese-mac",
+    output_dir="../output/Qwen3-0.6B-chinese-v1",
     per_device_train_batch_size=1,
     per_device_eval_batch_size=1,
     gradient_accumulation_steps=4,
@@ -109,11 +111,11 @@ args = TrainingArguments(
     logging_steps=10,
     num_train_epochs=2,
     save_steps=100,
-    learning_rate=1e-4,
+    learning_rate=1e-5,
     save_on_each_node=True,
     gradient_checkpointing=True,
     report_to="swanlab",
-    run_name="qwen3-0.6B-chinese-mac",
+    run_name="qwen3-0.6B-chinese-mac-v1",
 )
 
 trainer = Trainer(
@@ -147,7 +149,7 @@ for index, row in test_df.iterrows():
 
     LLM:{response}
     """
-    
+
     test_text_list.append(swanlab.Text(response_text))
     print(response_text)
 
