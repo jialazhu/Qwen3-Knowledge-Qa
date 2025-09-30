@@ -3,10 +3,3 @@
 *.idea
 *.xml
 *.pt
-*.txt
-*.pth
-*.json
-*.safetensors
-models
-*.jinja
-output
