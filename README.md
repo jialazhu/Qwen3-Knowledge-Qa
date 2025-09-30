@@ -307,8 +307,8 @@ assistant = MedicalAssistant("./your/custom/model/path")
 - **基础模型**: [Qwen3-1.7B](https://modelscope.cn/models/Qwen/Qwen3-1.7B/summary)
 
 ### 数据集资源
-- **医疗数据集**: [delicate_medical_r1_data](https://modelscope.cn/datasets/krisfu/delicate_medical_r1_data)
-- **中文百科数据集**: 内置chinese_simpleqa.jsonl
+- **医疗数据集**: [llama2-jinyong-style](https://huggingface.co/datasets/conghao/llama2-jinyong-style)
+- **中文百科数据集**: [Chinese-SimpleQA](https://huggingface.co/datasets/OpenStellarTeam/Chinese-SimpleQA)
 
 ### 工具和框架
 - **训练监控**: [SwanLab](https://swanlab.cn/@ZeyiLin/qwen3-sft-medical/overview)
